@@ -37,17 +37,17 @@ def normalise(km, price):
         # print(km, price)
     return (km, price)
 
-def denormalize(km, price, a, b, x):
+def denormalize(km, price, a, b, kilometre):
     a = np.float64(a)
     b = np.float64(b)
     maxPrice = max(price)
     minPrice = min(price)
     maxKm = max(km)
     minKm = min(km)
-    x = (float(x) - minKm) / (maxKm - minKm)
+    x = (float(kilometre) - minKm) / (maxKm - minKm)
     y = b + a * x
     price = minPrice + y * (maxPrice - minPrice)
-    print(price)
+    # print(price)
 
 
 
@@ -57,6 +57,7 @@ def calculGradient(km, price):
     a_current = 0.0
     b_current = 0.0
     m = float(len(km))
+    moindrecarre = []
     for i in range(iterations):
         sumDiff0 = 0
         sumDiff1 = 0
@@ -65,12 +66,14 @@ def calculGradient(km, price):
             sumDiff1 += (b_current + a_current * km[j] - price[j]) * km[j]
         b_current = b_current - learningRate * sumDiff0 / m
         a_current = a_current - learningRate * sumDiff1 / m
-        if (i % 250) == 0:
-            moindreCarre(a, b, km, price)
+        if (i % 200) == 0:
             bonus_normalise(km, price, a_current, b_current)
-            print(a_current, b_current)
+            # print(moindreCarre(a_current, b_current, km, price))
+            moindrecarre.append(moindreCarre(a_current, b_current, km, price))
+            # print(a_current, b_current)
     bonus_normalise(km, price, a_current, b_current)
     print(denormalize(km, price, a_current, b_current, 123))
+    bonus_moindrecarre(moindrecarre)
     return(a_current, b_current)
 
 
@@ -134,6 +137,11 @@ def bonus_secondprgram(a, b):
     # plt.savefig('StraightLine.png')
     plt.show()
 
+def bonus_moindrecarre(moindrecarre):
+    plt.plot(moindrecarre, 'bo')
+    plt.xlabel('moindre carre (km)')
+    plt.show()
+
 def bonus2():
     X = 2 * np.random.rand(100, 1)
     y = 4 + 3 * X + np.random.rand(100, 1)
@@ -171,10 +179,7 @@ def premierPgrm(km):
     print("penser a verifier les coef t0.txt et t1.txt")
     print("your car worth ")
     price = t0 + (t1 * km)
-    print(price)
     print(firstprgm(km, t0, t1))
-    return (price)
-
 
 
 def main(argv):
