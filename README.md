@@ -13,4 +13,4 @@ Determine the price of a car according the kilometer
 
 # Result
 
-![Screenshot](machine_learning_linear_regression/linear_regression/StraightLine.png)
+![Screenshot](https://github.com/rim31/machine_learning_linear_regression/blob/master/linear_regression/StraightLine.png)
