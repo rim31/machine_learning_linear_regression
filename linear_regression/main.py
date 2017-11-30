@@ -20,51 +20,58 @@ def firstprgm(km, t0, t1):
         print("error value !")
 
 
-
 def moindreCarre(a, b, km, price):
     totalError = 0
     for i in range(0, len(km)):
         totalError += (float(price[i]) - (a * float(km[i]) + b)) ** 2
     return totalError / float(len(km))
 
+def normalise(km, price):
+    minPrice = min(price)
+    maxPrice = max(price)
+    minKm = min(km)
+    maxKm = max(km)
+    for i in range(len(km)):
+        price[i] = (price[i] - minPrice) / (maxPrice - minPrice)
+        km[i] = (km[i] - minKm) / (maxKm - minKm)
+        # print(km, price)
+    return (km, price)
+
+def denormalize(km, price, a, b, x):
+    a = np.float64(a)
+    b = np.float64(b)
+    maxPrice = max(price)
+    minPrice = min(price)
+    maxKm = max(km)
+    minKm = min(km)
+    x = (float(x) - minKm) / (maxKm - minKm)
+    y = b + a * x
+    price = minPrice + y * (maxPrice - minPrice)
+    print(price)
 
 
-def calculGradient(a_current, b_current, km, price, learningRate):
-    bonus_secondprgoram(a_current, b_current)
+
+def calculGradient(km, price):
     iterations = 1000
-    print(a_current, b_current)
-    for j in range(0, iterations):
-        b_gradient = 0
-        a_gradient = 0
-        m = float(len(km))
-        for i in range(0, len(km)):
-            b_gradient += (1/m) * ( ((a_current*km[i]) + b_current) - price[i])
-            a_gradient += (1/m) * km[i] * (((a_current * km[i]) + b_current) - price[i])
-        new_a = a_current
-        new_b = b_current
-        new_b = b_current - (learningRate * b_gradient)
-        new_a = a_current - (learningRate * a_gradient)
-        if (j % 500) == 0:
-            bonus_secondprgoram(new_a, new_b)
-            print(new_a, new_b)
-
-    # m = len(km)
-    # for i in range(iterations):
-    #     sumDiff0 = 0
-    #     sumDiff1 = 0
-    #     for j in range(len(km)):
-    #         # //normalisation
-    #         # sumDiff0 += a_current + b_current * km[j] - price[j]
-    #         # sumDiff1 += (a_current + b_current * km[j] - price[j]) * km[j]
-    #         sumDiff0 +=  ( ((a_current*km1) + b_current) - price1)
-    #         sumDiff1 +=  km1 * (((a_current * km1) + b_current) - price1)
-    #     a_current = a_current - learningRate * sumDiff0 / m
-    #     b_current = b_current - learningRate * sumDiff1 / m
-    #     if (j % 500) == 0:
-    #         bonus_secondprgoram(a_current, b_current)
-    #         print(a_current, b_current)
-
-    return(new_a, new_b)
+    learningRate = 0.1
+    a_current = 0.0
+    b_current = 0.0
+    m = float(len(km))
+    for i in range(iterations):
+        sumDiff0 = 0
+        sumDiff1 = 0
+        for j in range(len(km)):
+            sumDiff0 += b_current + a_current * km[j] - price[j]
+            sumDiff1 += (b_current + a_current * km[j] - price[j]) * km[j]
+        b_current = b_current - learningRate * sumDiff0 / m
+        a_current = a_current - learningRate * sumDiff1 / m
+        if (i % 250) == 0:
+            moindreCarre(a, b, km, price)
+            bonus_normalise(km, price, a_current, b_current)
+            print(a_current, b_current)
+    bonus_normalise(km, price, a_current, b_current)
+    print(denormalize(km, price, a_current, b_current, 123))
+    return(a_current, b_current)
 
 
 def parse():
@@ -86,15 +93,18 @@ def yaxb(km, price):
     a = (price[0] - price[len(price) -1])/(km[0] - km[len(km)-1])
     b = price[0] - a * km[0]
     # bonus_estimation(a, b)
-    secontPrgm(a, b, km, price, 0.1)
+    secondPrgm(a, b, km, price, 0.1)
     return(a, b)
 
-def secontPrgm(a, b, km, price, learningRate):
+def secondPrgm(a, b, km, price, learningRate):
     # print("Methode moindre carre \n=======================")
     # print(moindreCarre(a, b, km, price))
+    bonus_secondprgram(a, b)
+    # print(a, b)
     res = []
-    res = calculGradient(a, b, km, price, learningRate)
-    print(res)
+    res = normalise(km, price)
+    calculGradient(res[0], res[1])
+    # print(res)
     # print("Methode moindre carre \n=======================")
     # print(moindreCarre(res[0], res[1], km, price))
     # bonus()
@@ -112,7 +122,7 @@ def bonus():
     # plt.savefig('StraightLine.png')
     plt.show()
 
-def bonus_secondprgoram(a, b):
+def bonus_secondprgram(a, b):
     result = []
     result = parse()
     km = result[0]
@@ -144,6 +154,14 @@ def bonus2():
 
 def bonus_estimation(a, b):
     plt.plot([a * x + b for x in range(250000)])
+    plt.show()
+
+def bonus_normalise(km, price, a, b):
+    plt.plot(km, price, 'gx')
+    plt.ylabel('Price (euro)')
+    plt.xlabel('Kilometrage (km)')
+    plt.plot([a * x + b for x in range(2)])
+    # plt.savefig('StraightLine.png')
     plt.show()
 
 def premierPgrm(km):
